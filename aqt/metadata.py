@@ -395,6 +395,8 @@ class QtRepoProperty:
             m = re.match(r"win\d{2}_(?P<msvc>msvc\d{4})_(?P<winrt>winrt_x\d{2})", arch)
             if m:
                 return f"{m.group('winrt')}_{m.group('msvc')}"
+            elif arch.endswith("_cross_compiled"):
+                return arch[6:-15]
             else:
                 return arch[6:]
         elif host == "mac" and arch == "clang_64":
