@@ -1157,6 +1157,7 @@ def installer(
     name = qt_package.name
     base_url = qt_package.base_url
     archive: Path = archive_dest / qt_package.archive
+    dest_dir = os.path.join(base_dir, *qt_package.subdirs) if qt_package.subdirs else base_dir
     start_time = time.perf_counter()
     Settings.load_settings(file=settings_ini)
     # setup queue logger
@@ -1187,19 +1188,19 @@ def installer(
     if tarfile.is_tarfile(archive):
         with tarfile.open(archive) as tar_archive:
             if hasattr(tarfile, "data_filter"):
-                tar_archive.extractall(filter="tar", path=base_dir)
+                tar_archive.extractall(filter="tar", path=dest_dir)
             else:
                 # remove this when the minimum Python version is 3.12
                 logger.warning("Extracting may be unsafe; consider updating Python to 3.11.4 or greater")
-                tar_archive.extractall(path=base_dir)
+                tar_archive.extractall(path=dest_dir)
     elif zipfile.is_zipfile(archive):
         with zipfile.ZipFile(archive) as zip_archive:
-            zip_archive.extractall(path=base_dir)
+            zip_archive.extractall(path=dest_dir)
     elif command is None:
         with py7zr.SevenZipFile(archive, "r") as szf:
-            szf.extractall(path=base_dir)
+            szf.extractall(path=dest_dir)
     else:
-        command_args = [command, "x", "-aoa", "-bd", "-y", "-o{}".format(base_dir), str(archive)]
+        command_args = [command, "x", "-aoa", "-bd", "-y", "-o{}".format(dest_dir), str(archive)]
         try:
             proc = subprocess.run(command_args, stdout=subprocess.PIPE, check=True)
             logger.debug(proc.stdout)

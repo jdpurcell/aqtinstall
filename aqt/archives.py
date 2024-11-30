@@ -49,6 +49,7 @@ class QtPackage:
     package_desc: str
     pkg_update_name: str
     version: Optional[Version] = field(default=None)
+    subdirs: Optional[List[str]] = None
 
     def __repr__(self):
         v_info = f", version={self.version}" if self.version else ""
@@ -131,6 +132,7 @@ class PackageUpdate:
     default: bool
     virtual: bool
     base: str
+    subdirs_by_archive: Dict[str, List[str]]
 
     def __post_init__(self):
         for iter_of_str in self.dependencies, self.auto_dependon, self.downloadable_archives:
@@ -188,6 +190,14 @@ class Updates:
             archives = updates._get_list(packageupdate.find("DownloadableArchives"))
             default = updates._get_boolean(packageupdate.find("Default"))
             virtual = updates._get_boolean(packageupdate.find("Virtual"))
+            subdirs_by_archive = {}
+            operations = packageupdate.find("Operations")
+            if operations is not None:
+                for operation in operations.findall("Operation"):
+                    if operation.get("name") == "Extract":
+                        args = operation.findall("Argument")
+                        if len(args) >= 2 and updates._get_text(args[0]).startswith("@TargetDir@/"):
+                            subdirs_by_archive[updates._get_text(args[1])] = updates._get_text(args[0])[12:].split("/")
             updates.package_updates.append(
                 PackageUpdate(
                     pkg_name,
@@ -201,6 +211,7 @@ class Updates:
                     default,
                     virtual,
                     base,
+                    subdirs_by_archive,
                 )
             )
         return updates
@@ -449,6 +460,7 @@ class QtArchives:
                         archive=archive,
                         package_desc=packageupdate.description,
                         pkg_update_name=packageupdate.name,  # For testing purposes
+                        subdirs=packageupdate.subdirs_by_archive.get(archive, None),
                     )
                 )
         # if we have located every requested package, then target_packages will be empty
