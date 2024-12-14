@@ -556,6 +556,16 @@ class QtRepoProperty:
     def is_in_wasm_threaded_range(version: Version) -> bool:
         return version in SimpleSpec(">=6.5.0")
 
+    @staticmethod
+    def available_extension_packages(version: Version, arch: str) -> Iterator[str]:
+        if version < Version("6.8.0"):
+            return
+        if arch in ["win64_msvc2022_arm64", "win64_msvc2022_arm64_cross_compiled"]:
+            return
+        if arch not in ["win64_mingw", "win64_llvm_mingw"]:
+            yield "qtwebengine"
+        yield "qtpdf"
+
 
 class MetadataFactory:
     """Retrieve metadata of Qt variations, versions, and descriptions from Qt site."""
@@ -692,9 +702,11 @@ class MetadataFactory:
     def fetch_latest_version(self, ext: str) -> Optional[Version]:
         return self.fetch_versions(ext).latest()
 
-    def fetch_extensions(self) -> List[str]:
+    def fetch_extensions(self, version: Version, arch: str) -> List[str]:
         html_doc = self.fetch_http(self.archive_id.to_extension_url(), False)
-        return list(self.iterate_folders(html_doc, self.base_url))
+        extensions = set(self.iterate_folders(html_doc, self.base_url))
+        avail_extensions = set(QtRepoProperty.available_extension_packages(version, arch))
+        return list(extensions & avail_extensions)
 
     def fetch_tools(self) -> List[str]:
         html_doc = self.fetch_http(self.archive_id.to_url(), False)
@@ -887,7 +899,7 @@ class MetadataFactory:
             if _arch == arch:
                 modules.add(cast(str, module))
         if version >= Version("6.8.0"):
-            for ext in self.fetch_extensions():
+            for ext in self.fetch_extensions(version, arch):
                 modules.add(ext)
         return sorted(modules)
 
@@ -931,7 +943,7 @@ class MetadataFactory:
         #           extensions.qtwebengine.680.win64_msvc2022_64
         ext_pattern = re.compile(r"^extensions\." + r"(?P<module>[^.]+)\." + qt_ver_str + r"\." + arch + r"$")
         if version >= Version("6.8.0"):
-            for ext in self.fetch_extensions():
+            for ext in self.fetch_extensions(version, arch):
                 ext_meta = self._fetch_extension_metadata(self.archive_id.to_extension_folder(ext, qt_ver_str, arch))
                 for key, value in ext_meta.items():
                     ext_match = ext_pattern.match(key)
