@@ -427,13 +427,13 @@ class QtArchives:
 
         if self.version >= Version("6.8.0"):
             arch = self.arch
-            if self.os_name == "windows":
+            if self.os_name in ["windows", "windows_arm64"]:
                 arch = self.arch.replace("win64_", "", 1)
             elif self.os_name == "linux":
                 arch = "x86_64"
             elif self.os_name == "linux_arm64":
                 arch = "arm64"
-            for ext in ["qtwebengine", "qtpdf"]:
+            for ext in QtRepoProperty.available_extension_packages(self.version, self.arch):
                 extensions_target_folder = posixpath.join(
                     "online/qtsdkrepository", os_name, "extensions", ext, self._version_str(), arch
                 )
