@@ -28,7 +28,8 @@ if sys.version_info.major == 2:
     sys.exit(1)
 
 from aqt.installer import Cli
-from aqt.version import __version__
+
+__version__ = "3.1.100"
 
 __all__ = ["__version__"]
 
