@@ -282,13 +282,7 @@ steps:
         cd $(Build.BinariesDirectory)\tests
         7z x $(Build.SourcesDirectory)\ci\helloworld.7z
         cd ..
-        
-        # Add QMAKE_CXXFLAGS for MSVC 2022
-        if ('$(VSVER)' -eq '2022') {
-          qmake "QMAKE_CXXFLAGS += $(QMAKE_FLAGS)" $(Build.BinariesDirectory)\tests\helloworld
-        } else {
-          qmake $(Build.BinariesDirectory)\tests\helloworld
-        }
+        qmake $(Build.BinariesDirectory)\tests\helloworld
         jom
       } elseif ( $env:TOOLCHAIN -eq 'MINGW' ) {
         python -m aqt install-tool $(if (($QT_BASE_MIRROR + "") -ne "") { "-b $QT_BASE_MIRROR" } else {""}) `
@@ -400,7 +394,7 @@ steps:
         eq(variables['Agent.OS'], 'Windows_NT'),
         eq(variables['TOOLCHAIN'], 'MSVC'),
         ne(variables['MODULE'], ''),
-        ne(variables['VSVER'], '2019')
+        ne(variables['VSVER'], '2022')
       )
     displayName: build test with qmake with MSVC with extra module
   - bash: |
