@@ -213,10 +213,15 @@ class ArchiveId:
         "mac": ["android", "desktop", "ios"],
         "linux": ["android", "desktop"],
         "linux_arm64": ["desktop"],
-        "all_os": ["qt"],
+        "all_os": ["wasm", "qt"],
     }
     EXTENSIONS_REQUIRED_ANDROID_QT6 = {"x86_64", "x86", "armv7", "arm64_v8a"}
-    ALL_EXTENSIONS = {"", "wasm", "src_doc_examples", *EXTENSIONS_REQUIRED_ANDROID_QT6}
+    ALL_EXTENSIONS = {
+        "",
+        "wasm",
+        "src_doc_examples",
+        *EXTENSIONS_REQUIRED_ANDROID_QT6,
+    }
 
     def __init__(self, category: str, host: str, target: str):
         if category not in ArchiveId.CATEGORIES:
@@ -239,6 +244,8 @@ class ArchiveId:
         return self.category == "tools"
 
     def to_os_arch(self) -> str:
+        if self.host == "all_os":
+            return "all_os"
         return "{os}{arch}".format(
             os=self.host,
             arch=(
@@ -256,6 +263,7 @@ class ArchiveId:
             extarch = "x86_64"
         elif self.host == "linux_arm64":
             extarch = "arm64"
+
         return "online/qtsdkrepository/{osarch}/extensions/{ext}/{ver}/{extarch}/".format(
             osarch=self.to_os_arch(),
             ext=module,
@@ -276,25 +284,33 @@ class ArchiveId:
 
     def to_folder(self, version: Version, qt_version_no_dots: str, extension: Optional[str] = None) -> str:
         if version >= Version("6.8.0"):
-            return "{category}{major}_{ver}/{category}{major}_{ver}{ext}".format(
-                category=self.category,
-                major=qt_version_no_dots[0],
-                ver=qt_version_no_dots,
-                ext="_" + extension if extension else "",
-            )
-        else:
-            return "{category}{major}_{ver}{ext}".format(
-                category=self.category,
-                major=qt_version_no_dots[0],
-                ver=qt_version_no_dots,
-                ext="_" + extension if extension else "",
-            )
+            if self.target == "wasm":
+                # Qt 6.8+ WASM uses a split folder structure
+                folder = f"qt{version.major}_{qt_version_no_dots}"
+                if extension:
+                    folder = f"{folder}/{folder}_{extension}"
+                return folder
+            else:
+                base = f"qt{version.major}_{qt_version_no_dots}"
+                return f"{base}/{base}"
+        elif version >= Version("6.5.0") and self.target == "wasm":
+            # Qt 6.5-6.7 WASM uses direct wasm_[single|multi]thread folder
+            if extension:
+                return f"qt{version.major}_{qt_version_no_dots}_{extension}"
+            return f"qt{version.major}_{qt_version_no_dots}"
+        # Pre-6.8 structure for non-WASM or pre-6.5 structure
+        return "{category}{major}_{ver}{ext}".format(
+            category=self.category,
+            major=qt_version_no_dots[0],
+            ver=qt_version_no_dots,
+            ext="_" + extension if extension else "",
+        )
 
     def all_extensions(self, version: Version) -> List[str]:
         if self.target == "desktop" and QtRepoProperty.is_in_wasm_range(self.host, version):
             return ["", "wasm"]
-        elif self.target == "desktop" and QtRepoProperty.is_in_wasm_threaded_range(version):
-            return ["", "wasm_singlethread", "wasm_multithread"]
+        elif self.target == "wasm" and QtRepoProperty.is_in_wasm_threaded_range(version):
+            return ["wasm_singlethread", "wasm_multithread"]
         elif self.target == "android" and version >= Version("6.0.0"):
             return list(ArchiveId.EXTENSIONS_REQUIRED_ANDROID_QT6)
         else:
@@ -419,6 +435,23 @@ class QtRepoProperty:
 
     @staticmethod
     def get_arch_dir_name(host: str, arch: str, version: Version) -> str:
+        """
+        Determines the architecture directory name based on host, architecture and version.
+        Special handling is done for WASM, mingw, MSVC and various platform-specific cases.
+        """
+        # If host is all_os and we have a desktop arch (from autodesktop),
+        # call ourselves again with the correct host based on arch prefix
+        if host == "all_os":
+            if arch.startswith("linux_"):
+                return QtRepoProperty.get_arch_dir_name("linux", arch, version)
+            elif arch.startswith("win"):
+                return QtRepoProperty.get_arch_dir_name("windows", arch, version)
+            elif arch == "clang_64":
+                return QtRepoProperty.get_arch_dir_name("mac", arch, version)
+            elif arch in ("wasm_singlethread", "wasm_multithread", "wasm_32"):
+                return arch
+
+        # Rest of the original method
         if arch.startswith("win64_mingw"):
             return arch[6:] + "_64"
         elif arch.startswith("win64_llvm"):
