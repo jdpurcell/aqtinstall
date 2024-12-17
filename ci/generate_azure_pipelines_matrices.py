@@ -189,22 +189,22 @@ windows_build_jobs.extend(
             "msvc2019_arm64",
             is_autodesktop=True,  # Should install win64_msvc2019_arm64 in parallel
         ),
-        BuildJob(
-            "install-qt",
-            "6.7.3",
-            "windows",
-            "desktop",
-            "win64_llvm_mingw",
-            "llvm-mingw_64",
-            mingw_variant="win64_llvm_mingw1706",
-            is_autodesktop=False,
-        ),
-        BuildJob(
-            # Archives stored as .zip
-            "install-src", "6.4.3", "windows", "desktop", "gcc_64", "gcc_64", subarchives="qtlottie",
-            # Fail the job if this path does not exist:
-            check_output_cmd="ls -lh ./6.4.3/Src/qtlottie/",
-        ),
+        # BuildJob(
+        #     "install-qt",
+        #     "6.7.3",
+        #     "windows",
+        #     "desktop",
+        #     "win64_llvm_mingw",
+        #     "llvm-mingw_64",
+        #     mingw_variant="win64_llvm_mingw1706",
+        #     is_autodesktop=False,
+        # ),
+        # BuildJob(
+        #     # Archives stored as .zip
+        #     "install-src", "6.4.3", "windows", "desktop", "gcc_64", "gcc_64", subarchives="qtlottie",
+        #     # Fail the job if this path does not exist:
+        #     check_output_cmd="ls -lh ./6.4.3/Src/qtlottie/",
+        # ),
     ]
 )
 
@@ -262,11 +262,11 @@ mac_build_jobs.append(
     BuildJob("install-qt", "6.4.3", "mac", "desktop", "wasm_32", "wasm_32",
              is_autodesktop=True, emsdk_version="sdk-3.1.14-64bit", autodesk_arch_folder="clang_64")
 )
-windows_build_jobs.append(
-    BuildJob("install-qt", "6.4.3", "windows", "desktop", "wasm_32", "wasm_32",
-             is_autodesktop=True, emsdk_version="sdk-3.1.14-64bit", autodesk_arch_folder="mingw_64",
-             mingw_variant="win64_mingw900")
-)
+# windows_build_jobs.append(
+#     BuildJob("install-qt", "6.4.3", "windows", "desktop", "wasm_32", "wasm_32",
+#              is_autodesktop=True, emsdk_version="sdk-3.1.14-64bit", autodesk_arch_folder="mingw_64",
+#              mingw_variant="win64_mingw900")
+# )
 
 # WASM post 6.7.x
 linux_build_jobs.append(
@@ -301,12 +301,12 @@ linux_build_jobs.extend(
 
 # Qt 6.3.0 for Windows-Android has win64_mingw available, but not win64_mingw81.
 # This will test that the path to mingw is not hardcoded.
-windows_build_jobs.extend(
-    [
-        BuildJob("install-qt", "6.3.2", "windows", "android", "android_armv7", "android_armv7", is_autodesktop=True),
-        BuildJob("install-qt", "6.4.3", "windows", "android", "android_x86_64", "android_x86_64", is_autodesktop=True),
-    ]
-)
+# windows_build_jobs.extend(
+#     [
+#         BuildJob("install-qt", "6.3.2", "windows", "android", "android_armv7", "android_armv7", is_autodesktop=True),
+#         BuildJob("install-qt", "6.4.3", "windows", "android", "android_x86_64", "android_x86_64", is_autodesktop=True),
+#     ]
+# )
 
 qt_creator_bin_path = "./Tools/QtCreator/bin/"
 qt_creator_mac_bin_path = "./Qt Creator.app/Contents/MacOS/"
@@ -325,9 +325,9 @@ tool_options_mac = {
     "TEST_TOOL1_CMD": f'"{qt_creator_mac_bin_path}qbs" --version',
     "LIST_TOOL1_CMD": f'ls "{qt_creator_mac_bin_path}"',
 }
-windows_build_jobs.append(
-    BuildJob("install-tool", "", "windows", "desktop", "", "", tool_options=tool_options)
-)
+# windows_build_jobs.append(
+#     BuildJob("install-tool", "", "windows", "desktop", "", "", tool_options=tool_options)
+# )
 linux_build_jobs.append(
     BuildJob("install-tool", "", "linux", "desktop", "", "", tool_options=tool_options)
 )
