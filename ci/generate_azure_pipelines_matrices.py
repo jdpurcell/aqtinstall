@@ -278,7 +278,7 @@ for job_queue, host, desk_arch, target, qt_version in (
     (mac_build_jobs, "all_os", "clang_64", "wasm", qt_versions[0]),
     (windows_build_jobs, "all_os", "mingw_64", "wasm", qt_versions[0]),
 ):
-    for wasm_arch in ("wasm_singlethread", "wasm_multithread"):
+    for wasm_arch in ["wasm_singlethread"]:
         job_queue.append(
             BuildJob("install-qt", qt_version, host, target, wasm_arch, wasm_arch,
                      is_autodesktop=True, emsdk_version=f"sdk-{BuildJob.emsdk_version_for_qt(qt_version)}-64bit", autodesk_arch_folder=desk_arch)
