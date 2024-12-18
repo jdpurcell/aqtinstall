@@ -401,6 +401,7 @@ class Cli:
         )
         qt_archives.archives.extend(auto_desktop_archives)
         target_config = qt_archives.get_target_config()
+        target_config.os_name = Cli._resolve_host_os(os_name)
         with TemporaryDirectory() as temp_dir:
             _archive_dest = Cli.choose_archive_dest(archive_dest, keep, temp_dir)
             run_installer(qt_archives.get_packages(), base_dir, sevenzip, keep, _archive_dest)
