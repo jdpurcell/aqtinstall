@@ -3,7 +3,7 @@ name: Check tox tests, lint and types
 on:
   push:
     branches:
-      # - master
+      - master
       - releases/*
   pull_request:
     types:
