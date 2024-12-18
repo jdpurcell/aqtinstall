@@ -176,19 +176,19 @@ mac_build_jobs.append(BuildJob(
             module="qtcharts qtnetworkauth", ))
 
 # Windows Desktop
-for qt_version in qt_versions:
-    windows_build_jobs.append(BuildJob("install-qt", qt_version, "windows", "desktop", "win64_msvc2022_64", "msvc2022_64"))
-windows_build_jobs.extend(
-    [
-        BuildJob(
-            "install-qt",
-            "6.5.3",
-            "windows",
-            "desktop",
-            "win64_msvc2019_arm64",
-            "msvc2019_arm64",
-            is_autodesktop=True,  # Should install win64_msvc2019_arm64 in parallel
-        ),
+# for qt_version in qt_versions:
+#     windows_build_jobs.append(BuildJob("install-qt", qt_version, "windows", "desktop", "win64_msvc2022_64", "msvc2022_64"))
+#windows_build_jobs.extend(
+#    [
+        # BuildJob(
+        #     "install-qt",
+        #     "6.5.3",
+        #     "windows",
+        #     "desktop",
+        #     "win64_msvc2019_arm64",
+        #     "msvc2019_arm64",
+        #     is_autodesktop=True,  # Should install win64_msvc2019_arm64 in parallel
+        # ),
         # BuildJob(
         #     "install-qt",
         #     "6.7.3",
@@ -205,8 +205,8 @@ windows_build_jobs.extend(
         #     # Fail the job if this path does not exist:
         #     check_output_cmd="ls -lh ./6.4.3/Src/qtlottie/",
         # ),
-    ]
-)
+#    ]
+#)
 
 # Extra modules test
 linux_build_jobs.extend(
@@ -251,7 +251,7 @@ linux_build_jobs.append(
 for job_queue, host, desk_arch in (
     (linux_build_jobs, "linux", "gcc_64"),
     (mac_build_jobs, "mac", "clang_64"),
-    (windows_build_jobs, "windows", "mingw_64"),
+    #(windows_build_jobs, "windows", "mingw_64"),
 ):
     for wasm_arch in ("wasm_singlethread", "wasm_multithread"):
         job_queue.append(
@@ -281,7 +281,7 @@ for job_queue, host, desk_arch, target, qt_version in (
     for wasm_arch in ("wasm_singlethread", "wasm_multithread"):
         job_queue.append(
             BuildJob("install-qt", qt_version, host, target, wasm_arch, wasm_arch,
-                     is_autodesktop=True, emsdk_version=f"sdk-{BuildJob.emsdk_version_for_qt(qt_version)}-64bit", autodesk_arch_folder=desk_arch)
+                     is_autodesktop=True, emsdk_version=f"sdk-{BuildJob.emsdk_version_for_qt(qt_version)}-64bit", autodesk_arch_folder=desk_arch, mingw_variant="win64_mingw1310")
         )
 
 # mobile SDK
