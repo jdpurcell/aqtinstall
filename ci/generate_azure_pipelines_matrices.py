@@ -176,8 +176,8 @@ mac_build_jobs.append(BuildJob(
             module="qtcharts qtnetworkauth", ))
 
 # Windows Desktop
-# for qt_version in qt_versions:
-#     windows_build_jobs.append(BuildJob("install-qt", qt_version, "windows", "desktop", "win64_msvc2022_64", "msvc2022_64"))
+for qt_version in qt_versions:
+    windows_build_jobs.append(BuildJob("install-qt", qt_version, "windows", "desktop", "win64_msvc2022_64", "msvc2022_64"))
 #windows_build_jobs.extend(
 #    [
         # BuildJob(
@@ -276,7 +276,7 @@ linux_build_jobs.append(
 for job_queue, host, desk_arch, target, qt_version in (
     (linux_build_jobs, "all_os", "linux_gcc_64", "wasm", qt_versions[0]),
     (mac_build_jobs, "all_os", "clang_64", "wasm", qt_versions[0]),
-    (windows_build_jobs, "all_os", "mingw_64", "wasm", qt_versions[0]),
+    #(windows_build_jobs, "all_os", "mingw_64", "wasm", qt_versions[0]),
 ):
     for wasm_arch in ["wasm_singlethread"]:
         job_queue.append(
