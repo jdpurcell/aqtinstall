@@ -238,7 +238,7 @@ steps:
         Write-Host '##vso[task.setvariable variable=ARCHITECTURE]x86'
       }
       if ('$(ARCH)' -like '*msvc*') {
-        Write-Host '##vso[task.setvariable variable=VSVER]2022'
+        Write-Host '##vso[task.setvariable variable=VSVER]2019'
       }
       cd $(WIN_QT_BINDIR)
       unzip $(Build.SourcesDirectory)\ci\jom_1_1_3.zip
@@ -394,7 +394,7 @@ steps:
         eq(variables['Agent.OS'], 'Windows_NT'),
         eq(variables['TOOLCHAIN'], 'MSVC'),
         ne(variables['MODULE'], ''),
-        ne(variables['VSVER'], '2022')
+        ne(variables['VSVER'], '2019')
       )
     displayName: build test with qmake with MSVC with extra module
   - bash: |
