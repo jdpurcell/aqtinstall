@@ -178,8 +178,8 @@ mac_build_jobs.append(BuildJob(
 # Windows Desktop
 for qt_version in qt_versions:
     windows_build_jobs.append(BuildJob("install-qt", qt_version, "windows", "desktop", "win64_msvc2022_64", "msvc2022_64"))
-#windows_build_jobs.extend(
-#    [
+windows_build_jobs.extend(
+    [
         # BuildJob(
         #     "install-qt",
         #     "6.5.3",
@@ -189,24 +189,24 @@ for qt_version in qt_versions:
         #     "msvc2019_arm64",
         #     is_autodesktop=True,  # Should install win64_msvc2019_arm64 in parallel
         # ),
-        # BuildJob(
-        #     "install-qt",
-        #     "6.7.3",
-        #     "windows",
-        #     "desktop",
-        #     "win64_llvm_mingw",
-        #     "llvm-mingw_64",
-        #     mingw_variant="win64_llvm_mingw1706",
-        #     is_autodesktop=False,
-        # ),
+        BuildJob(
+            "install-qt",
+            "6.7.3",
+            "windows",
+            "desktop",
+            "win64_llvm_mingw",
+            "llvm-mingw_64",
+            mingw_variant="win64_llvm_mingw1706",
+            is_autodesktop=False,
+        ),
         # BuildJob(
         #     # Archives stored as .zip
         #     "install-src", "6.4.3", "windows", "desktop", "gcc_64", "gcc_64", subarchives="qtlottie",
         #     # Fail the job if this path does not exist:
         #     check_output_cmd="ls -lh ./6.4.3/Src/qtlottie/",
         # ),
-#    ]
-#)
+    ]
+)
 
 # Extra modules test
 linux_build_jobs.extend(
